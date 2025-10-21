@@ -1,0 +1,9 @@
+# Local configuration (contains paths specific to your machine)
+config.json
+
+# Logs
+*.log
+
+# Test folders
+test-scripts/
+scratch/
