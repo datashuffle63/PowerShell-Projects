@@ -1,0 +1,19 @@
+{
+    "basePathAudit": "C:\\Documents\\Audit",
+    "basePathCarrierImplementation": "C:\\Documents\\CI",
+    "folderNameFormat": "{YearMonthDay}_{Account}",
+    "subFolders": [
+        {
+            "name":     "01_Source",
+            "subFolders": []
+        },
+        {
+            "name":     "02_Working",
+            "subFolders": ["_census", "_invoice"]
+        },
+        {
+            "name":     "03_Final",
+            "subFolders": ["_merge"]
+        }
+    ]
+}
