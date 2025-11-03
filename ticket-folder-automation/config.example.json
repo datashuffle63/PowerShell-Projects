@@ -1,7 +1,7 @@
 {
     "basePathAudit": "C:\\Documents\\Audit",
     "basePathCarrierImplementation": "C:\\Documents\\CI",
-    "stagingFolder": "C:\\Users\\Bryan Pineda\\Downloads",
+    "stagingFolder": "C:\\Downloads\\NewTicket",
     "folderNameFormat": "{YearMonthDay}_{Account}",
     "subFolders": [
         {
