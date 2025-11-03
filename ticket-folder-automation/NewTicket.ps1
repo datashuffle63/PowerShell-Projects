@@ -15,6 +15,14 @@ Ticket Project Automation Script
 .PARAMETER AccountName
     The name of the account or company requesting the ticket.
 
+.PARAMETER IncludeSourceFiles
+    Switch to enable moving source files from the Staging folder into the Ticket folder.
+
+.EXAMPLE
+    .\NewTicket.ps1 -TicketType Audit -AccountName "HOSC"
+    
+.EXAMPLE
+    .\NewTicket.ps1 -TicketType Audit -AccountName "HOSC" -IncludeSourceFiles
 
 #>
 
@@ -26,7 +34,10 @@ param(
 
     [Parameter(Mandatory=$true)]
     [ValidateNotNullOrEmpty()]
-    [string]$AccountName
+    [string]$AccountName,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$IncludeSourceFiles  
 )
 
 
@@ -94,6 +105,27 @@ foreach ($subFolder in $configFile.subFolders){
     }
 }
 
+# Optionally copy source files from Staging folder to Ticket folder
+if ($IncludeSourceFiles) {
+    [string]$stagingFolderPath = $configFile.stagingFolder
+    [string]$sourceDestinationPath = Join-Path -Path $projectFullPath -ChildPath "01_Source"
+
+    # Ensure staging folder exists
+    if (-not (Test-Path $stagingFolderPath)){
+        Write-Host "Warning: Staging folder does not exist at path: $stagingFolderPath. Skipping file transfer." -ForegroundColor Yellow
+    }
+    elseif (-not (Get-ChildItem -Path $stagingFolderPath -ErrorAction SilentlyContinue)){
+        Write-Host "Warning: Staging folder is empty at path: $stagingFolderPath. Skipping file transfer." -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "📂 Moving source files from Staging to Ticket folder..." -ForegroundColor Cyan
+        Move-Item -Path (Join-Path -Path $stagingFolderPath -ChildPath "*") -Destination $sourceDestinationPath -Recurse -Force
+        Write-Host "   ✅ File transfer completed" -ForegroundColor Green
+    }
+}
+else {
+    Write-Host "💡 Tip: Use -IncludeSourceFiles to auto-move files from staging folder" -ForegroundColor Gray
+}
 
 # prompt user of completion
 Write-Host "✅ Project folder structure created at: $projectFullPath" -ForegroundColor Green
