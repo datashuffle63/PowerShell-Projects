@@ -119,7 +119,11 @@ if ($IncludeSourceFiles) {
     }
     else {
         Write-Host "📂 Moving source files from Staging to Ticket folder..." -ForegroundColor Cyan
-        Move-Item -Path (Join-Path -Path $stagingFolderPath -ChildPath "*") -Destination $sourceDestinationPath -Recurse -Force
+
+        # Copy-Remove behaves like 'Move'
+        Copy-Item -Path "$stagingFolderPath\*" -Destination $sourceDestinationPath -Recurse -Force
+        Remove-Item -Path "$stagingFolderPath\*" -Recurse -Force
+
         Write-Host "   ✅ File transfer completed" -ForegroundColor Green
     }
 }
