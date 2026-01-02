@@ -93,7 +93,12 @@ catch {
 }
 
 # Subfolders: (01_Source, 02_Working, 03_Final) -- non-terminating errors
-foreach ($subFolder in $configFile.subFolders){
+$subFolders = switch ($TicketType) {
+    "Audit" { $configFile.projectTypes.audit.subFolders }
+    "CarrierImplementation" { $configFile.projectTypes.ci.subFolders}
+}
+
+foreach ($subFolder in $subFolders){
 
     [string]$subFolderPath = Join-Path -Path $projectFullPath -ChildPath $subFolder.name
     New-Item -Path $subFolderPath -ItemType Directory -Force | Out-Null
@@ -130,6 +135,40 @@ if ($IncludeSourceFiles) {
 else {
     Write-Host "💡 Tip: Use -IncludeSourceFiles to auto-move files from staging folder" -ForegroundColor Gray
 }
+
+# copy relevant tools to project folder (latest version only)
+if ($TicketType -eq "Audit") {
+    [string]$toolsSourcePath = $configFile.toolsPathAudit
+    [string]$auditAssistantPath = Join-Path -Path $toolsSourcePath -ChildPath "audit-assistant\\_release"
+    [string]$mergeToolPath = Join-Path -Path $toolsSourcePath -ChildPath "merge\\_release"
+
+    [string]$workingPath = Join-Path -Path $projectFullPath -ChildPath "02_Working"
+    [string]$mergePath = Join-Path -Path $projectFullPath -ChildPath "03_Final\_merge"
+
+    # get most recent versions and copy to project folder
+    $latestAuditAssistant = Get-ChildItem -Path $auditAssistantPath -Filter "audit-assistant-v*.xlsm" | 
+                            Sort-Object LastWriteTime -Descending | 
+                            Select-Object -First 1
+    $latestMergeTool =  Get-ChildItem -Path $mergeToolPath -Filter "multicarrier-merger-v*.xlsm" | 
+                        Sort-Object LastWriteTime -Descending | 
+                        Select-Object -First 1
+
+    Copy-Item -Path $latestAuditAssistant.FullName -Destination $workingPath -Force
+    Copy-Item -Path $latestMergeTool.FullName -Destination $mergePath -Force
+}
+elseif ($TicketType -eq "CarrierImplementation") {
+    [string]$toolsSourcePath = $configFile.toolsPathCarrierImplementation
+    [string]$ciProcessorPath = Join-Path -Path $toolsSourcePath -ChildPath "Carrier Template Processor\\_release"
+
+    [string]$workingPath = Join-Path -Path $projectFullPath -ChildPath "02_Working"
+
+    # get most recent version and copy to project folder
+    $latestCIProcessor = Get-ChildItem -Path $ciProcessorPath -Filter "Carrier-Template-Processor_v*.xlsm" | 
+                         Sort-Object LastWriteTime -Descending | 
+                         Select-Object -First 1
+    Copy-Item -Path $latestCIProcessor.FullName -Destination $workingPath -Force
+}
+
 
 # prompt user of completion
 Write-Host "✅ Project folder structure created at: $projectFullPath" -ForegroundColor Green

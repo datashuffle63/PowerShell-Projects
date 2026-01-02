@@ -1,5 +1,6 @@
 # Local configuration (contains paths specific to your machine)
 config.json
+*_bkp*.json
 
 # Logs
 *.log
